@@ -141,7 +141,7 @@ class Trainer:
                 last_ckpt_path = ckpt_path
                 print(f"Checkpoint saved: {ckpt_path}")
 
-        # ✅ ALWAYS SAVE FINAL MODEL
+        # SAVE FINAL MODEL
         final_model_path = None
         if self.log_dir:
             final_model_path = os.path.join(self.log_dir, "model_final.pt")

@@ -9,13 +9,31 @@ This project orchestrates machine learning workflows for physics-informed neural
 ## Architecture
 
 ```
-├── activities/      # Temporal activities (atomic tasks)
-├── models/         # FNO model definitions
-├── utils/          # Helper functions and utilities
-├── workflow/       # Temporal workflow definitions
-├── worker.py       # Temporal worker process
-├── workflow_run.py # Workflow execution entry point
-└── shared.py       # Shared configurations and constants
+Folder Structure:
+model_workflow/
+├── worker.py            # Temporal Worker process
+├── workflow_run.py      # Workflow execution entry point
+├── shared.py            # Shared configuration and constant    
+├── LDC_128              # Dataset 
+|    └── LDC_NS_2D\128x128
+│
+├── workflows/                   # Workflow definition
+│	 ├── __init__.py
+│    └── ml_pipeline_workflow.py # Sequence and failure handling code
+│
+├── activities/                  # Temporal activities
+│    ├── __init__.py
+│    ├── dataset_download.py      # Download the dataset 
+│    ├── train_fno.py             # training module 
+│	 └── evaluate_FNO.py          # Inference code
+│
+├── utils/
+│    ├── dataset.py               # Dataset, Split the data, Dataloader
+│    ├── metrics.py               # L2_norm and LInf_Norm
+│    ├── trainer.py               # helper function : Train model 
+│    └── visulization.py          # Comparision chart creation 
+│
+└── requirements.txt 
 ```
 
 ## Key Components
@@ -34,23 +52,38 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-1. **Start the Temporal worker:**
+
+1. **Start the Temporal:**
+   ```bash
+   temporal server start-dev
+   ```
+
+2. **Start the Temporal worker:**
    ```bash
    python worker.py
    ```
 
-2. **Run a workflow:**
+3. **Run a workflow:**
    ```bash
    python workflow_run.py
    ```
 
+
+## Failure handling: 
+**Retry Policies** - Exponential backoff with configurable attempts and intervals  
+**Activity Timeouts** - Four types: Start-to-Close, Schedule-to-Close, Heartbeat, and Schedule-to-Start  
+**Heartbeats** - Progress tracking and faster failure detection for long ML training jobs  
+**Error Handling** - Non-retryable vs retryable errors with the Saga pattern for compensation
+
+
+
 ## Features
 
-- ✅ Durable execution with automatic retries
-- ✅ Fault-tolerant ML pipeline orchestration
-- ✅ FNO-based fluid dynamics prediction
-- ✅ LDC flow simulation handling
-- ✅ Distributed task execution
+- Durable execution with automatic retries
+- Fault-tolerant ML pipeline orchestration
+- FNO-based fluid dynamics prediction
+- LDC flow simulation handling
+- Distributed task execution
 
 ## What is FNO?
 
@@ -60,13 +93,28 @@ Fourier Neural Operators learn mappings between function spaces using spectral c
 
 The Lid-Driven Cavity is a benchmark CFD problem where fluid motion is driven by a moving lid, commonly used to validate numerical methods and ML models.
 
-## Use Cases
 
-- Training surrogate models for CFD simulations
-- Real-time flow prediction from initial conditions
-- Parameter optimization in fluid dynamics
-- Reduced-order modeling for engineering applications
+## References: 
+```
+@misc{li2021fourierneuraloperatorparametric,
+      title={Fourier Neural Operator for Parametric Partial Differential Equations}, 
+      author={Zongyi Li and Nikola Kovachki and Kamyar Azizzadenesheli and Burigede Liu and Kaushik Bhattacharya and Andrew Stuart and Anima Anandkumar},
+      year={2021},
+      eprint={2010.08895},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2010.08895}, 
+}
+```
 
-## License
-
-See repository license file for details.
+```
+@misc{tali2024flowbenchlargescalebenchmark,
+      title={FlowBench: A Large Scale Benchmark for Flow Simulation over Complex Geometries}, 
+      author={Ronak Tali and Ali Rabeh and Cheng-Hau Yang and Mehdi Shadkhah and Samundra Karki and Abhisek Upadhyaya and Suriya Dhakshinamoorthy and Marjan Saadati and Soumik Sarkar and Adarsh Krishnamurthy and Chinmay Hegde and Aditya Balu and Baskar Ganapathysubramanian},
+      year={2024},
+      eprint={2409.18032},
+      archivePrefix={arXiv},
+      primaryClass={physics.flu-dyn},
+      url={https://arxiv.org/abs/2409.18032}, 
+}
+```
